@@ -6,20 +6,26 @@ The underlying rooting and configuration work was tested on **two different TCL 
 
 The detailed firmware reference and candidate profile target **55C6K, T653T01 V643, Android 14, board merak / hardware mt5896**, with Magisk 30.7 and Projectivy 4.71. Testing two models does not establish compatibility with every firmware or unit sold under those names. Verify the exact build, board, image and slot for your unit.
 
-**Unlocking can erase apps, accounts and settings. Wrong images or bootloader commands can prevent booting.** Read the rooting and recovery notes before interacting with the service port. The default bridge profile only requests `version`; no flashing runs at boot unless explicitly armed.
+**Unlocking can erase apps, accounts and settings. Wrong images or bootloader commands can prevent booting.** Read the runbook and recovery notes before interacting with the service port. The default bridge profile only requests `version`; no flashing runs by default. A reference flash profile requires local adaptation and explicit live execution.
 
 ## Start here
 
-1. Read [rooting and recovery](docs/rooting.md) before attempting root.
-2. Copy `config.example.json` to `config.local.json`; enter your own ADB target, serial, exact build fingerprint and retained apps.
-3. Authorize ADB on the TV. Use `adb connect <TV_ADDRESS>:5555` if your firmware supports network ADB. Select the same server port and target in the config.
-4. Run a read-only audit:
+For an agent with no prior conversation, point it here and say:
+
+> Read AGENTS.md and docs/runbook.md, then use this repository's acquired knowledge to inspect and prepare my TCL TV for my requested setup. Identify the actual build and my retained functions first. Keep my identity, credentials, artifacts and handoff under ignored local files. Follow the stage checks and recovery branches, and distinguish verified results from untested proposals.
+
+[AGENTS.md](AGENTS.md) is the agent entry point. The [ordered runbook](docs/runbook.md) covers discovery → matching stock image → on-target patch → ESP commissioning/OTA → reviewed unlock/flash → Magisk proof → apps/launcher → privacy/cleanup → optional artwork/sleep → final verification. [The local session template](examples/session.example.json) preserves progress for agent handoffs. Historical authorization is not permission to reset a new owner's TV.
+
+For an **already rooted and identified** TV:
+
+1. Authorize the explicit ADB target, then run `python3 tools/discover.py --target YOUR_ADB_TARGET --write-config` to initialize ignored identity/config without root. Manually confirm the model/full software version and review retained apps/profile. Existing config is never overwritten.
+2. Run a read-only audit:
 
    ```sh
    python3 tools/tv.py audit
    ```
 
-5. Once root is available, build a plan and review it:
+3. Build a plan and review it:
 
    ```sh
    python3 tools/tv.py plan --scopes privacy debloat
@@ -34,13 +40,20 @@ Applying requires matching the serial, fingerprint and original state. A baselin
 
 | Guide | Covers |
 | --- | --- |
+| [Agent instructions](AGENTS.md) | Entry point, current authorization, private handoff and evidence rules |
+| [Ordered runbook](docs/runbook.md) | All stages, prerequisites, owner handoffs, commands and stop conditions |
 | [Tested devices](docs/tested-devices.md) | The two physical TV models, verified behavior and differences in test scope |
+| [Firmware preparation](docs/firmware.md) | Verified V643 source/hash, ZIP extraction, on-target Magisk patch and ramdisk checks |
 | [Rooting](docs/rooting.md) | Discovery, HDMI service UART, image matching, historical command sequence, reset and recovery |
+| [Recovery](docs/recovery.md) | ESP/UART diagnosis, black screen, module failure, baseline rollback and boot-image limits |
 | [Privacy and cleanup](docs/privacy.md) | Microphone restrictions, recording AppOps, Samba ACR components, optional packages, rollback |
 | [Launcher](docs/launcher.md) | Projectivy, favorites, boot/wake app selection, media-service permission, app provenance |
 | [Boot artwork](docs/boot-art.md) | Neutral samples, custom frame packaging, memory budgets, early RAW boundaries |
 | [Daily sleep](docs/sleep.md) | Fixed UTC offset conversion, private on-TV cron, installation, verification and removal |
 | [Lessons](docs/lessons.md) | What failed, what was preserved, and verification limits |
+| [Decisions and evidence](docs/knowledge.md) | Acquired knowledge, reasons for choices, failures and source map |
+| [Final verification](docs/verification.md) | Root, privacy persistence, playback, Home, startup, artwork and actual sleep-event proof |
+| [Portable validation](docs/validation.md) | Fresh-source checks, actual artifact comparisons and the boundary between software and hardware tests |
 | [ESP32 bridge](esp32/README.md) | Build, wiring, control page, one-shot automation, capture and OTA |
 
 ## Neutral sample artwork
@@ -73,6 +86,6 @@ c++ -std=c++17 esp32/tests/sequence_test.cpp -o /tmp/tv-sequence-test
 python3 tools/check_public.py
 ```
 
-The underlying procedure was exercised on the **75P8K and 55C6K**, with the checks described in the [tested-device record](docs/tested-devices.md). The portable tools are tested with simulated ADB responses; they have not been applied as a new batch to either TV. The public neutral sample animation is also separate from the artwork used during hardware testing. A complete proprietary-network audit, physical microphone disconnection and performance benchmark are outside the evidence collected.
+The underlying procedure was exercised on the **75P8K and 55C6K**, with the checks described in the [tested-device record](docs/tested-devices.md). The [portable validation record](docs/validation.md) covers 25 Python tests, ESP timing/UI checks, a fresh source/environment/ESP build and comparison of the retained real boot images. The portable clients use simulated ADB/HTTP responses and have not been applied as a new batch to either TV. The public neutral sample animation is also separate from the artwork used during hardware testing. A complete proprietary-network audit, physical microphone disconnection and performance benchmark are outside the evidence collected.
 
 Original toolkit source and neutral samples are licensed under MIT. Third-party apps, firmware and libraries retain their own licenses and are not redistributed here.

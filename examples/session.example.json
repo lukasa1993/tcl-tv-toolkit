@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "stage": "discovery",
+  "config": "config.local.json",
+  "physical_model_confirmed": false,
+  "full_software_version": "REPLACE_WITH_TARGET_BUILD",
+  "requested": {
+    "retained_packages": ["com.google.android.youtube.tv", "com.plexapp.android"],
+    "retained_inputs": [],
+    "startup_package": null,
+    "microphone_restrictions": false,
+    "acr_controls": false,
+    "artwork": false,
+    "daily_sleep": null
+  },
+  "owner_authorization": {
+    "scope": "RECORD_CURRENT_OWNER_INSTRUCTIONS",
+    "reset_and_flash_risks_accepted": false,
+    "drive_erase_authorized": false,
+    "reboot_authorized": false
+  },
+  "artifacts": {
+    "discovery": ".local/discovery.json",
+    "stock_image": null,
+    "stock_sha256": null,
+    "patched_image": null,
+    "patched_sha256": null,
+    "rollback": null
+  },
+  "proofs": {
+    "firmware_match": null,
+    "root_uid_zero": null,
+    "normal_boot": null,
+    "privacy_after_reboot": null,
+    "playback_and_inputs": null,
+    "startup_after_boot_and_wake": null,
+    "sleep_daemon_after_reboot": null,
+    "actual_scheduled_sleep": null
+  },
+  "uart_rx": "unknown",
+  "esp_disarmed": null,
+  "pending_human_action": null,
+  "last_attempt": null,
+  "next_action": "Identify the owner's goal and inspect the explicit target without changing it."
+}

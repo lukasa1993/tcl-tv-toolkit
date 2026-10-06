@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent
 LOCAL_HTTP = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
-def request(host, path, body=None):
+def request(host, path, body=None, content_type="text/plain"):
     token = (ROOT / "private/access-token").read_text().strip()
     if path == "/tx" and body is not None:
         if len(body) > 4096:
@@ -23,9 +23,50 @@ def request(host, path, body=None):
         body = body.hex().encode("ascii")
     req = urllib.request.Request(
         f"http://{host}:8080{path}", data=body,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "text/plain"},
+        headers={"Authorization": f"Bearer {token}", "Content-Type": content_type},
     )
     return LOCAL_HTTP.open(req, timeout=15)
+
+
+def profile_fields(profile):
+    if set(profile) != {"start", "enter", "interval", "settle", "steps"}:
+        raise ValueError("Profile needs exactly start, enter, interval, settle, steps")
+    fields = {}
+    for key, minimum, maximum in (("start", 0, 120000), ("enter", 0, 120000),
+                                  ("interval", 20, 1000), ("settle", 0, 30000)):
+        value = profile[key]
+        if type(value) is not int or not minimum <= value <= maximum:
+            raise ValueError(f"Invalid {key} timing")
+        fields[key] = str(value)
+    steps = profile["steps"]
+    if not isinstance(steps, list) or len(steps) > 12:
+        raise ValueError("At most 12 steps allowed")
+    fields["count"] = str(len(steps))
+    for index, step in enumerate(steps):
+        if not isinstance(step, dict) or set(step) != {"command", "wait"}:
+            raise ValueError("Each step needs command and wait")
+        command, wait = step["command"], step["wait"]
+        if (not isinstance(command, str) or not 1 <= len(command) <= 256 or
+                any(not 32 <= ord(character) <= 126 for character in command) or
+                "YOUR_" in command or "REPLACE_" in command):
+            raise ValueError("Commands must be bounded printable ASCII with placeholders replaced")
+        if type(wait) is not int or not 0 <= wait <= 60000:
+            raise ValueError("Step waits must be integer milliseconds up to 60000")
+        fields[f"cmd{index}"] = command
+        fields[f"wait{index}"] = str(wait)
+    return fields
+
+
+def start_fields(profile, mode="dry", accepted=False):
+    if mode not in {"dry", "now", "arm"}:
+        raise ValueError("Invalid execution mode")
+    if mode != "dry" and not accepted:
+        raise ValueError("Live transmission requires --accept-reset-risk and current owner authorization")
+    fields = profile_fields(profile)
+    fields["mode"] = mode
+    if mode != "dry":
+        fields["risk"] = "ack"
+    return fields
 
 
 def main():
@@ -38,6 +79,14 @@ def main():
     update.add_argument("firmware", type=Path)
     sub.add_parser("automation", help="Show automation status without reading TV UART")
     sub.add_parser("disarm", help="Stop transmissions and clear all boot ARM flags")
+    loopback = sub.add_parser("loopback", help="TV must be disconnected: enable or permanently close commissioning")
+    loopback.add_argument("mode", choices=["on", "close"])
+    profile = sub.add_parser("profile", help="Save a reviewed timing/command profile; no UART transmission")
+    profile.add_argument("file", type=Path)
+    run = sub.add_parser("run", help="Run a profile timeline; defaults to no UART bytes")
+    run.add_argument("--profile", required=True, type=Path)
+    run.add_argument("--mode", choices=["dry", "now", "arm"], default="dry")
+    run.add_argument("--accept-reset-risk", action="store_true")
     rx = sub.add_parser("read")
     rx.add_argument("--follow", action="store_true")
     rx.add_argument("--save", type=Path)
@@ -49,7 +98,17 @@ def main():
         cmd = sub.add_parser(name)
         cmd.add_argument("seconds", type=int, choices=range(31))
     args = parser.parse_args()
-    if args.command == "open":
+    if args.command in {"profile", "run"}:
+        file = args.file if args.command == "profile" else args.profile
+        profile = json.loads(file.read_text())
+        fields = profile_fields(profile) if args.command == "profile" else start_fields(profile, args.mode, args.accept_reset_risk)
+        endpoint = "/automation/config" if args.command == "profile" else "/automation/start"
+        with request(args.host, endpoint, urllib.parse.urlencode(fields).encode(), "application/x-www-form-urlencoded") as response:
+            print(response.read().decode())
+    elif args.command == "loopback":
+        with request(args.host, "/commissioning-loopback", b"1" if args.mode == "on" else b"0") as response:
+            print(response.read().decode())
+    elif args.command == "open":
         token = (ROOT / "private/access-token").read_text().strip()
         url = f"http://{args.host}:8080/#key={urllib.parse.quote(token, safe='')}"
         if not webbrowser.open(url):

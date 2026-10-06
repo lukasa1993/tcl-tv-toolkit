@@ -1,0 +1,16 @@
+{
+  "start": 0,
+  "enter": 60000,
+  "interval": 100,
+  "settle": 2000,
+  "steps": [
+    {"command": "env set devicestate unlock", "wait": 2000},
+    {"command": "avb init mmc", "wait": 2000},
+    {"command": "avb set-devicestate 0", "wait": 2000},
+    {"command": "avb set-verity disable", "wait": 2000},
+    {"command": "saveenv", "wait": 5000},
+    {"command": "usb start", "wait": 5000},
+    {"command": "usb_partial_upgrade_to_emmc YOUR_MATCHED_PATCHED_BOOT.img YOUR_VERIFIED_BOOT_PARTITION", "wait": 60000},
+    {"command": "reset", "wait": 2000}
+  ]
+}

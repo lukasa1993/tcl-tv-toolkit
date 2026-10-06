@@ -25,6 +25,16 @@ Android's native boot-animation player can decode all loop frames into memory. B
 
 Avoid a native preview that bind-mounts over the running system globally. A preview timeout is not itself a memory failure. Verify the player exits normally and a real reboot finishes before accepting an animation. To undo the sample while Android is functioning, disable/remove module `tv_sample_art` in Magisk and reboot deliberately.
 
+### Reference preview protocol for an agent adapting this build
+
+The original preview was a guarded root script, not a launcher video preview. To reproduce that experiment, first verify identity/build/root, `sys.boot_completed=1`, the init bootanim service stopped and no existing bootanimation process. Retain current values of `service.bootanim.exit`, `sys.tcl.bootanim.exit`, `sys.bootanim.anim_1` and `ro.feature.bootanim_cust`. Arrange cleanup before any temporary change, including restoring missing properties to missing rather than inventing defaults.
+
+Create a **private mount namespace** using the available verified BusyBox/unshare implementation, make mounts private there, bind the candidate ZIP to the verified native animation path inside that namespace and start the actual native player. Never put that bind in init's/global namespace. Coordinate temporary properties with the reference firmware's exit behavior and restore them through cleanup/resetprop when needed; property changes aren't isolated merely because the mount namespace is private.
+
+The reference sampling limits were **650 MiB player RSS** and **300 MiB available system memory**. It used the normal boot-complete exit signal at about **21 seconds**, with a **50-second** outer timeout and cleanup. One initial timeout (exit 143) was followed by a properly exited preview (exit 0), sampled peak around **527 MiB** and minimum available memory around **594 MiB**. Do not treat that initial timeout as proof of a memory abort or carry these resource values into a different animation without measuring. Confirm player cleanup and restored properties, then separately test a deliberate real reboot.
+
+This protocol preserves the acquired experiment details. The repository does not ship a universal native-preview script; an agent must inspect the current player/path/properties and namespace implementation before adapting it. The generated neutral sample has a much smaller decoded-frame budget and has not itself been installed in either hardware test.
+
 ## Early static warning image
 
 This is a separate, more sensitive stage. The reference replaced only `orange_state.raw` in the bootdata filesystem, retaining the unlocked/orange security state. Replacing artwork does not restore verified boot or relock the bootloader.
@@ -40,3 +50,16 @@ The encoder does not resize, install or validate compatibility with a bootloader
 Before an early-image write, preserve the full bootdata partition, original RAW, file manifests, permissions, owner, SELinux context, timestamps, vbmeta and trailing verification material. The reference made only the filesystem/block device writable temporarily, staged and hash-checked the replacement, atomically renamed it, synced, and restored read-only protection. Only the intended file changed, with vbmeta bytes unchanged.
 
 There is deliberately no generic raw-partition writer here. Mount layout, verification mode and recovery differ by firmware. A root check plus a matching model name is insufficient. Recoverable rooted-Android artwork changes do not justify blind writes to bootloader code or vbmeta.
+
+### Reference transaction for the early asset
+
+For an agent writing a **device-specific** guarded transaction, the original procedure was:
+
+1. Verify serial/build/root, completed boot, active `_a`, unlocked state and observed verification flags. Resolve `bootdata_a`, its real block device, the existing read-only ext4 mount at `/mnt/vendor/bootdata`, and the actual `orange_state.raw` location. Don't infer a filename's subdirectory from the model name.
+2. Save a full partition backup, original RAW and a file/metadata manifest privately; compare on-device and pulled sizes/hashes. Save vbmeta and trailing verification material too. Refuse to overwrite a known-good original or proceed with an unexplained mismatch or pre-existing staging file.
+3. Establish old/new hashes, the expected **1,843,200-byte** replacement, original owner/mode/SELinux context/timestamps, and original block/filesystem read-only state. The reference asset type was `mt_bootdata_file`; copy the observed full context instead of guessing it on another build.
+4. Install rollback/cleanup handlers first. Temporarily make only the intended block/filesystem writable. Stage the replacement on the same filesystem, retaining the original metadata; verify content hash and size before an atomic rename over the intended asset. Sync staged data and the completed transaction.
+5. Compare the before/after file manifest: only the intended RAW content may differ. Compare retained vbmeta bytes and the reference trailing **1 MiB** region unchanged. Restore filesystem and block read-only protection even on failure. Check resulting hash/size/metadata and the mounted protection state.
+6. Do not automatically reboot from the writer. Review the result, deliberately test normal boot and actual early-image appearance, and retain restoration instructions. A raw asset change doesn't undo the unlocked/orange security state.
+
+The refined reference Magisk artwork module had exactly the three entries above, without startup scripts or SELinux rules. The early replacement changed the asset only, retaining the existing hashtree-disabled verification state. Neither step required making SELinux permissive or rewriting the bootloader code. Other layouts, verification flags, file formats or mount states are a new investigation, not an exception an agent should silently waive.
