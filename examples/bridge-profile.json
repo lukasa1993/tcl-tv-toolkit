@@ -1,0 +1,7 @@
+{
+  "start": 0,
+  "enter": 10000,
+  "interval": 100,
+  "settle": 2000,
+  "steps": [{"command": "version", "wait": 2000}]
+}

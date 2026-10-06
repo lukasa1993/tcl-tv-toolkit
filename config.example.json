@@ -1,0 +1,11 @@
+{
+  "adb": "adb",
+  "adb_server_port": 5037,
+  "adb_target": "TV_ADDRESS:5555",
+  "expected_serial": "REPLACE_WITH_YOUR_TV_SERIAL",
+  "expected_fingerprint": "REPLACE_WITH_EXACT_RO_BUILD_FINGERPRINT",
+  "su": "/debug_ramdisk/su",
+  "profile": "profiles/t653t01-v643.json",
+  "keep_packages": ["com.google.android.youtube.tv", "com.plexapp.android"],
+  "sleep": {"local_time": "01:00", "utc_offset": "+04:00"}
+}

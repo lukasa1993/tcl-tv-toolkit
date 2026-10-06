@@ -1,0 +1,22 @@
+# Local identity, secrets, captures and generated artifacts never belong in Git.
+.local/
+**/private/
+config.local.json
+*.local.json
+.env
+.env.*
+!.env.example
+**/.pio/
+**/__pycache__/
+*.pyc
+.venv/
+build/
+dist/
+*.apk
+*.img
+*.raw
+*.bin
+*.plbackup
+*.docx
+*.pdf
+.DS_Store

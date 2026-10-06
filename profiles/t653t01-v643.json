@@ -1,0 +1,9 @@
+{
+  "name": "TCL T653T01 V643 Android 14 candidate controls",
+  "notes": "Observed on a 55C6K. Review every item; matching the model name alone is insufficient.",
+  "global_zero": ["receive_explicit_user_interaction_audio_enabled", "hotword_detection_enabled", "tcl_app_ssm_switch", "tcl_app_ssm_cidclient_start", "userAgreementCheckboxShareDiagnostics", "userAgreementCheckboxTermsExperience", "tcl_diagnostic_status", "tcl_uxp_status"],
+  "secure_clear": ["assistant", "voice_interaction_service", "voice_recognition_service", "default_voice_input_method"],
+  "recording_ops": ["RECORD_AUDIO", "RECORD_AUDIO_OUTPUT", "PHONE_CALL_MICROPHONE", "RECEIVE_SOUNDTRIGGER_AUDIO", "RECEIVE_EXPLICIT_USER_INTERACTION_AUDIO"],
+  "disable_packages": ["com.google.android.katniss", "com.tcl.smartalexa", "com.tcl.interactive", "com.amazon.amazonvideo.livingroom", "com.netflix.ninja", "com.netflix.tokenmanager", "com.google.android.youtube.tvmusic", "com.google.android.play.games", "com.tcl.airplay2", "com.mediatek.AirplayAPK", "com.mediatek.airplaydaemon", "com.tcl.magiconnectfree", "com.google.android.syncadapters.calendar", "com.android.printspooler", "com.google.android.feedback", "com.tcl.ocean.instructions", "com.tcl.repairguide", "com.tcl.exhibit"],
+  "disable_components": ["com.tcl.ttvs/com.tcl.ttvs.ssm.frameserver.SambaVideoService", "com.tcl.ttvs/com.tcl.ttvs.ssm.receiver.SSMReceive", "com.tcl.ttvs/com.tcl.ttvs.alexa.core.AlexaService"]
+}

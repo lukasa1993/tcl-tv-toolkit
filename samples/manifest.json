@@ -1,0 +1,17 @@
+{
+  "texture": [
+    640,
+    180
+  ],
+  "display": [
+    1920,
+    1080
+  ],
+  "fps": 30,
+  "frames": [
+    30,
+    60
+  ],
+  "decoded_loop_mib": 26.3671875,
+  "sha256": "d16b326d06f18aa9cbf89f336db64e72f9b5946ffb41411298eec19ad0bafa0e"
+}
