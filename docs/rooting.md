@@ -4,7 +4,7 @@
 
 Record the model label, complete software version, Android version, security patch, board, build fingerprint, active slot, and boot security state. Developer options and ADB authorization allow inspection; they do not themselves provide root. Collect read-only properties with `adb shell getprop` and keep the output in ignored local storage.
 
-A useful reference was TCL 55C6K on V8-T653T01-LF1V643 / Android 14, reported board `merak`, hardware `mt5896`, active slot `_a`. Model labels can cover different firmware and hardware. Never use this list as a substitute for your own device inspection.
+Rooting work succeeded on both **TCL 75P8K and TCL 55C6K**; see the [tested-device record](tested-devices.md). The detailed firmware reference for the sequence below was the 55C6K on V8-T653T01-LF1V643 / Android 14, reported board `merak`, hardware `mt5896`, active slot `_a`. Model labels can cover different firmware and hardware. Never use this list as a substitute for your own device inspection.
 
 A normal TV USB-A socket is generally a host port for drives or power. The observed TV-to-computer USB test did not expose usable fastboot/ADB. An ESP connected only through its USB power socket does not create a TV console connection. Do not assume an undocumented USB socket is a device port.
 

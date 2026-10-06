@@ -2,7 +2,9 @@
 
 Community-oriented notes and tools for inspecting, rooting and configuring a TCL Android / Google TV. Includes an ESP32 Wi-Fi UART bridge with ARM/DISARM and OTA, reversible privacy and app-cleanup plans, Projectivy setup guidance, a local sleep scheduler, and neutral boot-animation samples.
 
-The documented reference platform is **55C6K, T653T01 V643, Android 14, board merak / hardware mt5896**, with Magisk 30.7 and Projectivy 4.71. This is an observed configuration, not a compatibility claim for every TV sold under that model name. Verify the exact build, board, image and slot for your unit.
+The underlying rooting and configuration work was tested on **two different TCL TV models: 75P8K and 55C6K**. Root, persisted privacy controls, Projectivy and custom boot artwork were verified on both. The 55C6K additionally supplied the boot/wake app-startup and on-TV sleep-scheduler checks. See the [tested-device record](docs/tested-devices.md) for the scope and limits of each test.
+
+The detailed firmware reference and candidate profile target **55C6K, T653T01 V643, Android 14, board merak / hardware mt5896**, with Magisk 30.7 and Projectivy 4.71. Testing two models does not establish compatibility with every firmware or unit sold under those names. Verify the exact build, board, image and slot for your unit.
 
 **Unlocking can erase apps, accounts and settings. Wrong images or bootloader commands can prevent booting.** Read the rooting and recovery notes before interacting with the service port. The default bridge profile only requests `version`; no flashing runs at boot unless explicitly armed.
 
@@ -32,6 +34,7 @@ Applying requires matching the serial, fingerprint and original state. A baselin
 
 | Guide | Covers |
 | --- | --- |
+| [Tested devices](docs/tested-devices.md) | The two physical TV models, verified behavior and differences in test scope |
 | [Rooting](docs/rooting.md) | Discovery, HDMI service UART, image matching, historical command sequence, reset and recovery |
 | [Privacy and cleanup](docs/privacy.md) | Microphone restrictions, recording AppOps, Samba ACR components, optional packages, rollback |
 | [Launcher](docs/launcher.md) | Projectivy, favorites, boot/wake app selection, media-service permission, app provenance |
@@ -70,6 +73,6 @@ c++ -std=c++17 esp32/tests/sequence_test.cpp -o /tmp/tv-sequence-test
 python3 tools/check_public.py
 ```
 
-The portable tools are tested with simulated ADB responses; they have not been applied as a new batch to a live TV. The reference procedure was checked on a matching TV, including root, persisted controls, normal boot, and launcher boot/wake behavior. A complete proprietary-network audit, physical microphone disconnection and performance benchmark are outside the evidence collected.
+The underlying procedure was exercised on the **75P8K and 55C6K**, with the checks described in the [tested-device record](docs/tested-devices.md). The portable tools are tested with simulated ADB responses; they have not been applied as a new batch to either TV. The public neutral sample animation is also separate from the artwork used during hardware testing. A complete proprietary-network audit, physical microphone disconnection and performance benchmark are outside the evidence collected.
 
 Original toolkit source and neutral samples are licensed under MIT. Third-party apps, firmware and libraries retain their own licenses and are not redistributed here.

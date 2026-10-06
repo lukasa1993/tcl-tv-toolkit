@@ -1,5 +1,7 @@
 # Lessons and limits
 
+These lessons came from work on **TCL 75P8K and TCL 55C6K**. The failed initial privacy module and recovery occurred on the 75P8K; the refined configuration was then checked on the 55C6K. See [tested devices](tested-devices.md) for each model's verification scope.
+
 - **Unlock can reset everything.** One early attempt reset a TV without adequately warning about setup/account loss. Document that consequence before transmission and preserve configuration first.
 - **A black screen proves little.** Neither black nor a bridge transmission log establishes U-Boot or flash success. Later setup screens, root identity and boot-state properties supplied the actual proof.
 - **Preserve shared core UIDs.** An overbroad privacy Magisk module and shared-UID recording restrictions were followed by a startup hang. The failed module was disabled and core audio settings restored. It is not included here. The exact causal contribution of each restriction was not isolated; avoid recreating that batch.
